@@ -1,25 +1,47 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from flask import Flask, request, jsonify
 
+# Create a Flask app
 app = Flask(__name__)
-CORS(app)
 
-# Create a list called 'events' with a couple of sample event dictionaries
-# Each dictionary should have an 'id' and a 'title'
+#Temporary list of events acting like our database
+events = [
+    {"id": 1, "title": "Yoga in the park"},
+    {"id": 2, "title": "Lake 5k run"},
+]
 
-# TASK: Create a route for "/"
-# This route should return a JSON welcome message
+#Home route
+@app.route("/", methods=["GET"])
+def welcome():
+    return jsonify({"message": "Welcome!"}), 200
 
-# TASK: Create a GET route for "/events"
-# This route should return the full list of events as JSON
+#Get route to send all events to the frontend
+@app.route("/events", methods=["GET"])
+def get_events():
+    return jsonify(events), 200
 
-# TASK: Create a POST route for "/events"
-# This route should:
-# 1. Get the JSON data from the request
-# 2. Validate that "title" is provided
-# 3. Create a new event with a unique ID and the provided title
-# 4. Add the new event to the events list
-# 5. Return the new event with status code 201
+#Post route to recieve a new event from the frontend 
+@app.route("/events", methods=["POST"])
+def add_event():
+    global events
+    
+    #Get JSON data sent from JavaScript
+    data = request.get_json()
+    
+    #Create a new id by finding the highest current id and adding 1
+    new_id = max([event["id"] for event in events], defaukt=0) + 1
+    
+    #Create a new event object
+    new_event = {
+        "id": new_id,
+        "title": data["title"]
+    }
+    
+    #Add the new event to the eventss list 
+    events.append(new_event)
+    
+    #Send the new event back with 201 Created status
+    return jsonify(new_event), 201
 
+#Run the server only when this file is executed directly
 if __name__ == "__main__":
     app.run(debug=True)
