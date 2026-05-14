@@ -23,24 +23,29 @@ def get_events():
 @app.route("/events", methods=["POST"])
 def add_event():
     global events
-    
-    #Get JSON data sent from JavaScript
+
+    # Get JSON data from the request
     data = request.get_json()
-    
-    #Create a new id by finding the highest current id and adding 1
-    new_id = max([event["id"] for event in events], defaukt=0) + 1
-    
-    #Create a new event object
+
+    # Validate that data exists and contains a title
+    if not data or "title" not in data:
+        return jsonify({"error": "Title is required"}), 400
+
+    # Create a new ID
+    new_id = max([event["id"] for event in events], default=0) + 1
+
+    # Create the new event object
     new_event = {
-        "id": new_id,
-        "title": data["title"]
+    "id": new_id,
+    "title": data["title"]
     }
-    
-    #Add the new event to the eventss list 
+
+    # Add new event to the list
     events.append(new_event)
-    
-    #Send the new event back with 201 Created status
+
+    # Return the created event
     return jsonify(new_event), 201
+
 
 #Run the server only when this file is executed directly
 if __name__ == "__main__":
